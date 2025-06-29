@@ -1,0 +1,26 @@
+services:
+    dev:
+        build:
+            context: .
+            dockerfile: Containerfile
+            args:
+                NODE_VERSION: 'lts/*'
+                PYTHON_VERSIONS: ''
+        image: dev-env
+        container_name: dev-container
+        environment:
+            - TERM=xterm-ghostty
+            - TZ=America/Los_Angeles
+        stdin_open: true
+        tty: true
+        command: sleep infinity
+        working_dir: /workspace
+        volumes:
+            - workspace:/workspace
+            - $HOME/.config/nvim:/root/.config/nvim:Z
+            - $HOME/.ssh:/root/.ssh:ro,Z
+            - $HOME/.gitconfig:/root/.gitconfig:ro,Z
+
+volumes:
+    workspace:
+        external: true
