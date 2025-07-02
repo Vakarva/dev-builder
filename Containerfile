@@ -19,11 +19,13 @@ COPY ./shell-config/xterm-ghostty.terminfo /tmp/
 
 # Install essential tools
 RUN apt-get update && apt-get -y install --no-install-recommends \
+    build-essential \
     ca-certificates \
     curl \
     git \
     less \
     openssh-client \
+    ripgrep \
     tree \
     wget \
     zsh \
