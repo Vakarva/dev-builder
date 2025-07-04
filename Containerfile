@@ -1,6 +1,9 @@
 # Use latest stable Debian slim image as base
 FROM debian:stable-slim
 
+# Fix for corporate network hash sum mismatches
+RUN printf "Acquire::http::Pipeline-Depth 0;\nAcquire::http::No-Cache true;\nAcquire::BrokenProxy true;" > /etc/apt/apt.conf.d/99fixbadproxy
+
 ARG \
     NVM_VERSION="0.40.3" \
     # Defaults to latest LTS Node.js version
@@ -13,6 +16,7 @@ ENV \
     DEBIAN_FRONTEND="noninteractive"
 
 # Load custom configuration files
+COPY ./shell-config/.zshenv /root/.zshenv
 COPY ./shell-config/.zshrc /root/.zshrc
 COPY ./shell-config/p10k.zsh /root/.p10k.zsh
 COPY ./shell-config/xterm-ghostty.terminfo /tmp/
@@ -35,16 +39,13 @@ RUN apt-get update && apt-get -y install --no-install-recommends \
     && echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" > /etc/apt/sources.list.d/github-cli.list \
     && apt-get update \
     && apt-get install gh -y \
-    # Clean apt cache and package lists (saves ~20-50MB, which is trivial, but demonstrates apt caching behavior)
+    # Clean apt cache and package lists (saves ~20-50MB)
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/* \
     # Set zsh as the default shell for root user
     && chsh -s /bin/zsh root \
-    # Install Oh My Zsh and plugins (--depth=1 option and value: only clones the latest commit, reducing image size)
-    && sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended --keep-zshrc \
-    && git clone --depth=1 https://github.com/romkatv/powerlevel10k.git "${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/themes/powerlevel10k" \
-    && git clone --depth=1 https://github.com/zsh-users/zsh-autosuggestions ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-autosuggestions \
-    && git clone --depth=1 https://github.com/zsh-users/zsh-syntax-highlighting.git ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-syntax-highlighting \
+    # Trigger bootstrap install of zsh4humans by starting up a zsh instance (https://github.com/romkatv/zsh4humans/issues/94)
+    && script -qec 'zsh -is </dev/null' /dev/null \
     # Install Node Version Manager (nvm), initialize nvm, and install selected Node.js version
     && curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v${NVM_VERSION}/install.sh | bash \
     && bash -c "source $HOME/.nvm/nvm.sh && nvm install $NODE_VERSION" \
@@ -52,10 +53,10 @@ RUN apt-get update && apt-get -y install --no-install-recommends \
     && curl -LsSf https://astral.sh/uv/install.sh | sh \
     && . $HOME/.local/bin/env \
     && uv python install ${PYTHON_VERSIONS} \
-    # Install latest stable Neovim (https://github.com/neovim/neovim/blob/master/INSTALL.md)
-    && curl -LO https://github.com/neovim/neovim/releases/latest/download/nvim-linux-arm64.tar.gz \
-    && tar -C /opt -xzf nvim-linux-arm64.tar.gz \
-    && rm nvim-linux-arm64.tar.gz \
+    # Install latest stable Neovim directly to ~/opt and symlink to ~/.local/bin (https://github.com/neovim/neovim/blob/master/INSTALL.md)
+    && mkdir -p /root/.local/bin \
+    && curl -L https://github.com/neovim/neovim/releases/latest/download/nvim-linux-arm64.tar.gz | tar -xz -C /opt \
+    && ln -sf /opt/nvim-linux-arm64/bin/nvim /root/.local/bin/nvim \
     # Load Ghostty terminal info (https://ghostty.org/docs/help/terminfo) and clean up
     && tic -x /tmp/xterm-ghostty.terminfo \
     && rm /tmp/xterm-ghostty.terminfo
