@@ -48,11 +48,12 @@ RUN apt-get update && apt-get -y install --no-install-recommends \
     && script -qec 'zsh -is </dev/null' /dev/null \
     # Install Node Version Manager (nvm), initialize nvm, and install selected Node.js version
     && curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v${NVM_VERSION}/install.sh | bash \
-    && bash -c "source $HOME/.nvm/nvm.sh && nvm install $NODE_VERSION" \
+    && bash -c "source $HOME/.nvm/nvm.sh && nvm install $NODE_VERSION && npm i -g @anthropic-ai/claude-code" \
     # Install uv, source uv environment variables, and install Python version(s)
     && curl -LsSf https://astral.sh/uv/install.sh | sh \
     && . $HOME/.local/bin/env \
     && uv python install ${PYTHON_VERSIONS} \
+    && uv tool install ruff \
     # Install latest stable Neovim directly to ~/opt and symlink to ~/.local/bin (https://github.com/neovim/neovim/blob/master/INSTALL.md)
     && mkdir -p /root/.local/bin \
     && curl -L https://github.com/neovim/neovim/releases/latest/download/nvim-linux-arm64.tar.gz | tar -xz -C /opt \
