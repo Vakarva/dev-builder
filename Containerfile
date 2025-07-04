@@ -30,6 +30,7 @@ RUN apt-get update && apt-get -y install --no-install-recommends \
     less \
     openssh-client \
     ripgrep \
+    tmux \
     tree \
     wget \
     zsh \
