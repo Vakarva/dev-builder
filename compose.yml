@@ -20,8 +20,6 @@ services:
             - $HOME/.ssh:/root/.ssh:ro,Z
             - $HOME/.gitconfig:/root/.gitconfig:ro,Z
             - $HOME/.config/nvim:/root/.config/nvim:Z
-            - $HOME/.local/share/nvim:/root/.local/share/nvim:Z
-            - $HOME/.local/state/nvim:/root/.local/state/nvim:Z
 
 volumes:
     workspace:
