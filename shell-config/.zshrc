@@ -63,15 +63,16 @@ path=(~/bin $path)
 
 # Export environment variables.
 export GPG_TTY=$TTY
+# Enable pager with colors and better navigation for git log, man pages, etc.
+export PAGER="less -R"
+export LESS="-R -S -M -i -j3 --mouse"
 
 # Source additional local files if they exist.
 z4h source ~/.env.zsh
 
 # Use additional Git repositories pulled in with `z4h install`.
 #
-# This is just an example that you should delete. It does nothing useful.
-z4h source ohmyzsh/ohmyzsh/lib/diagnostics.zsh  # source an individual file
-z4h load   ohmyzsh/ohmyzsh/plugins/emoji-clock  # load a plugin
+# Add any z4h source/load commands here for Oh My Zsh plugins or other repos.
 
 # Define key bindings.
 z4h bindkey undo Ctrl+/   Shift+Tab  # undo the last command line change
