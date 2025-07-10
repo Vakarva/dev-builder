@@ -33,6 +33,7 @@ RUN apt-get update && apt-get -y install --no-install-recommends \
     ripgrep \
     tmux \
     tree \
+    unzip \
     wget \
     zsh \
     # Install GitHub CLI, which isn't in Debian default repos (https://github.com/cli/cli/blob/trunk/docs/install_linux.md)
