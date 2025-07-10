@@ -55,7 +55,6 @@ RUN apt-get update && apt-get -y install --no-install-recommends \
     && curl -LsSf https://astral.sh/uv/install.sh | sh \
     && . $HOME/.local/bin/env \
     && uv python install ${PYTHON_VERSIONS} \
-    && uv tool install ruff \
     # Install latest stable Neovim directly to ~/opt and symlink to ~/.local/bin (https://github.com/neovim/neovim/blob/master/INSTALL.md)
     && mkdir -p /root/.local/bin \
     && curl -L https://github.com/neovim/neovim/releases/latest/download/nvim-linux-arm64.tar.gz | tar -xz -C /opt \
