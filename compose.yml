@@ -4,6 +4,7 @@ services:
             context: .
             dockerfile: Containerfile
             args:
+                NEOVIM_CONFIG_URL: 'https://github.com/Vakarva/nvim'
                 NODE_VERSION: 'lts/*'
                 PYTHON_VERSIONS: ''
         image: dev-env
@@ -20,7 +21,6 @@ services:
             - workspace:/workspace
             - $HOME/.ssh:/root/.ssh:ro,Z
             - $HOME/.gitconfig:/root/.gitconfig:ro,Z
-            - $HOME/.config/nvim:/root/.config/nvim:Z
 
 volumes:
     workspace:

@@ -5,6 +5,7 @@ FROM debian:stable-slim
 RUN printf "Acquire::http::Pipeline-Depth 0;\nAcquire::http::No-Cache true;\nAcquire::BrokenProxy true;" > /etc/apt/apt.conf.d/99fixbadproxy
 
 ARG \
+    NEOVIM_CONFIG_URL="https://github.com/Vakarva/nvim" \
     NVM_VERSION="0.40.3" \
     # Defaults to latest LTS Node.js version
     NODE_VERSION="lts/*" \
@@ -16,9 +17,9 @@ ENV \
     DEBIAN_FRONTEND="noninteractive"
 
 # Load custom configuration files
-COPY ./shell-config/.tmux.conf /root/.tmux.conf
-COPY ./shell-config/.zshenv /root/.zshenv
-COPY ./shell-config/.zshrc /root/.zshrc
+# COPY ./shell-config/.tmux.conf /root/.tmux.conf
+# COPY ./shell-config/.zshenv /root/.zshenv
+# COPY ./shell-config/.zshrc /root/.zshrc
 COPY ./shell-config/.p10k.zsh /root/.p10k.zsh
 COPY ./shell-config/xterm-ghostty.terminfo /tmp/
 
@@ -30,6 +31,9 @@ RUN apt-get update && apt-get -y install --no-install-recommends \
     git \
     less \
     openssh-client \
+    # Python for system installs, uv for development
+    python3 \
+    python3-venv \
     ripgrep \
     tmux \
     tree \
@@ -49,6 +53,10 @@ RUN apt-get update && apt-get -y install --no-install-recommends \
     && chsh -s /bin/zsh root \
     # Trigger bootstrap install of zsh4humans by starting up a zsh instance (https://github.com/romkatv/zsh4humans/issues/94)
     && script -qec 'zsh -is </dev/null' /dev/null \
+    # Download zsh and tmux configurations
+    && curl https://raw.githubusercontent.com/Vakarva/dotfiles/main/zsh/.zshenv -o /root/.zshenv \
+        https://raw.githubusercontent.com/Vakarva/dotfiles/main/zsh/.zshrc -o /root/.zshrc \
+        https://raw.githubusercontent.com/Vakarva/dotfiles/main/tmux/.tmux.conf -o /root/.tmux.conf \
     # Install Node Version Manager (nvm), initialize nvm, and install selected Node.js version
     && curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v${NVM_VERSION}/install.sh | bash \
     && bash -c "source $HOME/.nvm/nvm.sh && nvm install $NODE_VERSION && npm i -g @anthropic-ai/claude-code" \
@@ -60,6 +68,8 @@ RUN apt-get update && apt-get -y install --no-install-recommends \
     && mkdir -p /root/.local/bin \
     && curl -L https://github.com/neovim/neovim/releases/latest/download/nvim-linux-arm64.tar.gz | tar -xz -C /opt \
     && ln -sf /opt/nvim-linux-arm64/bin/nvim /root/.local/bin/nvim \
+    # Download Neovim configuration
+    && git clone --depth 1 ${NEOVIM_CONFIG_URL} /root/.config/nvim \
     # Load Ghostty terminal info (https://ghostty.org/docs/help/terminfo) and clean up
     && tic -x /tmp/xterm-ghostty.terminfo \
     && rm /tmp/xterm-ghostty.terminfo
