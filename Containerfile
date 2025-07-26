@@ -17,9 +17,6 @@ ENV \
     DEBIAN_FRONTEND="noninteractive"
 
 # Load custom configuration files
-# COPY ./shell-config/.tmux.conf /root/.tmux.conf
-# COPY ./shell-config/.zshenv /root/.zshenv
-# COPY ./shell-config/.zshrc /root/.zshrc
 COPY ./shell-config/.p10k.zsh /root/.p10k.zsh
 COPY ./shell-config/xterm-ghostty.terminfo /tmp/
 
