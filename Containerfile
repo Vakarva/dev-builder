@@ -17,7 +17,7 @@ ENV \
     DEBIAN_FRONTEND="noninteractive"
 
 # Load custom configuration files
-COPY ./shell-config/.p10k.zsh /root/.p10k.zsh
+COPY ./shell-config/.zprofile /root/.zprofile
 COPY ./shell-config/xterm-ghostty.terminfo /tmp/
 
 # Install essential tools
@@ -25,15 +25,16 @@ RUN apt-get update && apt-get -y install --no-install-recommends \
     build-essential \
     ca-certificates \
     curl \
+    fzf \
     git \
+    gpg \
     less \
     openssh-client \
-    # Python for system installs, uv for development
+    # Python for system installs
     python3 \
     python3-venv \
     ripgrep \
     tmux \
-    tree \
     unzip \
     wget \
     zsh \
@@ -43,17 +44,24 @@ RUN apt-get update && apt-get -y install --no-install-recommends \
     && echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" > /etc/apt/sources.list.d/github-cli.list \
     && apt-get update \
     && apt-get install gh -y \
+    # Install eza
+    && wget -qO- https://raw.githubusercontent.com/eza-community/eza/main/deb.asc | gpg --dearmor -o /etc/apt/keyrings/gierens.gpg \
+    && echo "deb [signed-by=/etc/apt/keyrings/gierens.gpg] http://deb.gierens.de stable main" | tee /etc/apt/sources.list.d/gierens.list \
+    && chmod 644 /etc/apt/keyrings/gierens.gpg /etc/apt/sources.list.d/gierens.list \
+    && apt-get update \
+    && apt-get install -y eza \
     # Clean apt cache and package lists (saves ~20-50MB)
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/* \
     # Set zsh as the default shell for root user
     && chsh -s /bin/zsh root \
-    # Trigger bootstrap install of zsh4humans by starting up a zsh instance (https://github.com/romkatv/zsh4humans/issues/94)
-    && script -qec 'zsh -is </dev/null' /dev/null \
     # Download zsh and tmux configurations
-    && curl https://raw.githubusercontent.com/Vakarva/dotfiles/main/zsh/.zshenv -o /root/.zshenv \
-        https://raw.githubusercontent.com/Vakarva/dotfiles/main/zsh/.zshrc -o /root/.zshrc \
-        https://raw.githubusercontent.com/Vakarva/dotfiles/main/tmux/.tmux.conf -o /root/.tmux.conf \
+    && curl -fsSL https://raw.githubusercontent.com/Vakarva/dotfiles/main/zsh/.p10k.zsh -o /root/.p10k.zsh \
+    && curl -fsSL https://raw.githubusercontent.com/Vakarva/dotfiles/main/zsh/.zshrc -o /root/.zshrc \
+    && curl -fsSL https://raw.githubusercontent.com/Vakarva/dotfiles/main/tmux/.tmux.conf -o /root/.tmux.conf \
+    # Download tpm and run plugin installer
+    && git clone --depth 1 https://github.com/tmux-plugins/tpm /root/.config/tmux/plugins/tpm \
+    && /root/.config/tmux/plugins/tpm/bin/install_plugins \
     # Install Node Version Manager (nvm), initialize nvm, and install selected Node.js version
     && curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v${NVM_VERSION}/install.sh | bash \
     && bash -c "source $HOME/.nvm/nvm.sh && nvm install $NODE_VERSION && npm i -g @anthropic-ai/claude-code" \

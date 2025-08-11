@@ -88,8 +88,8 @@ podman compose run --name dev-container --rm dev zsh
 # Build the image and start the container in detached mode
 podman compose up --build -d
 
-# Access the running container
-podman compose exec dev zsh
+# Attach to the container and run a zsh login shell
+podman compose exec dev zsh -l
 ```
 
 ##### Stop the Environment <!-- omit in toc -->
