@@ -17,7 +17,6 @@ ENV \
     DEBIAN_FRONTEND="noninteractive"
 
 # Load custom configuration files
-COPY ./shell-config/.zprofile /root/.zprofile
 COPY ./shell-config/xterm-ghostty.terminfo /tmp/
 
 # Install essential tools
