@@ -63,13 +63,8 @@ Your local `~/.gitconfig` file and `~/.ssh` directory are mounted as read-only i
 
 ### 3.3. (Optional) Font Installation
 
-1. Install MesloLGS NF fonts ([Powerlevel10k's recommended font-family](https://github.com/romkatv/powerlevel10k?tab=readme-ov-file#fonts)) from the `fonts/` directory if you do not already have them installed on your local machine:
+1. Install a nerd font. The ghostty config uses JetBrains Mono by default. [Get JetBrains Mono](https://www.jetbrains.com/lp/mono/) or, alternatively, [get MesloLGS NF](https://github.com/romkatv/powerlevel10k?tab=readme-ov-file#fonts).
 
-    - **macOS**: Double-click each `.ttf` file and click "Install"
-    - **Windows**: Right-click each `.ttf` file and select "Install"
-    - **Linux**: Copy to `/usr/share/fonts/truetype/` and run `fc-cache -fv`
-
-2. You can delete the `fonts/` directory, if you'd like
 
 ### 3.4. Running the Container
 
