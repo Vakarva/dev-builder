@@ -2,45 +2,67 @@
 
 **A container for development with Neovim, Node.js, Python, and Zsh.**
 
-This repository contains instructions for creating a containerized development environment that utilizes Neovim as its IDE, includes both Node.js and Python runtimes, and a nicely configured Zsh for the shell. It's designed as a starting point for projects that need these languages in a consistent, reproducible environment.
+This repository contains instructions for creating a containerized development
+environment that utilizes Neovim as its IDE, includes both Node.js and Python
+runtimes, and a nicely configured Zsh for the shell. It's designed as a starting
+point for projects that need these languages in a consistent, reproducible
+environment.
 
-## Table of Contents <!-- omit in toc -->
+<!-- toc -->
 
--   [1. What's Inside?](#1-whats-inside)
--   [2. Prerequisites](#2-prerequisites)
--   [3. Setup](#3-setup)
-    -   [3.1. Download](#31-download)
-    -   [3.2. Configure `compose.yml`](#32-configure-composeyml)
-    -   [3.3. (Optional) Font Installation](#33-optional-font-installation)
-    -   [3.4. Running the Container](#34-running-the-container)
-    -   [3.5. Exiting the Development Container](#35-exiting-the-development-container)
--   [4. You're In! Now What?](#4-youre-in-now-what)
-    -   [4.1. Node.js](#41-nodejs)
-    -   [4.2. Python](#42-python)
-    -   [4.3. Terminal](#43-terminal)
--   [5. Customization](#5-customization)
-    -   [5.1. Container Configuration](#51-container-configuration)
-    -   [5.2. Shell Configuration](#52-shell-configuration)
--   [6. Troubleshooting](#6-troubleshooting)
+- [1. What's Inside?](#1-whats-inside)
+- [2. Prerequisites](#2-prerequisites)
+- [3. Setup](#3-setup)
+    * [3.1. Download](#31-download)
+    * [3.2. Configure `compose.yml`](#32-configure-composeyml)
+    * [3.3. (Optional) Font Installation](#33-optional-font-installation)
+    * [3.4. Running the Container](#34-running-the-container)
+        + [Option 1: Temporary Container (Auto-removes on Exit):](#option-1-temporary-container-auto-removes-on-exit-)
+        + [Option 2: Persistent Container:](#option-2-persistent-container-)
+            - [Start the Environment](#start-the-environment-)
+            - [Stop the Environment](#stop-the-environment-)
+    * [3.5. Exiting the Development Container](#35-exiting-the-development-container)
+- [4. You're In! Now What?](#4-youre-in-now-what)
+    * [4.1. Node.js](#41-nodejs)
+    * [4.2. Python](#42-python)
+    * [4.3. Terminal](#43-terminal)
+- [5. Customization](#5-customization)
+    * [5.1. Container Configuration](#51-container-configuration)
+    * [5.2. Shell Configuration](#52-shell-configuration)
+
+<!-- tocstop -->
 
 ## 1. What's Inside?
 
--   [Debian](https://www.debian.org)-Slim operating system
--   [Git](https://git-scm.com)
--   [GitHub CLI](https://cli.github.com)
--   [OpenSSH](https://www.openssh.com) client (for SSH agent forwarding to use host's Git credentials)
--   [curl](https://curl.se) & [Wget](https://www.gnu.org/software/wget/)
--   [ca-certificates](https://packages.debian.org/sid/ca-certificates) (for secure HTTPS connections and package downloads)
--   [Neovim](https://neovim.io) (IDE)
--   [Node.js](https://nodejs.org/) managed by [nvm](https://github.com/nvm-sh/nvm)
--   [Python](https://www.python.org) managed by [uv](https://docs.astral.sh/uv/)
--   [Zsh](https://www.zsh.org) with:
-    -   [oh my zsh](https://ohmyz.sh) with [zsh-autosuggestions](https://github.com/zsh-users/zsh-autosuggestions) and [zsh-syntax-highlighting](https://github.com/zsh-users/zsh-syntax-highlighting) plugins
-    -   [Powerlevel10k](https://github.com/romkatv/powerlevel10k) theme
+The base is a slim image of the latest stable
+[Debian OS](https://www.debian.org) (currently "trixie")
+
+- [ca-certificates](https://packages.debian.org/sid/ca-certificates) (for secure
+  HTTPS connections and package downloads)
+- [curl](https://curl.se) & [Wget](https://www.gnu.org/software/wget/)
+- [eza](https://github.com/eza-community/eza) modern alternative to `ls`
+- [fzf](https://github.com/junegunn/fzf) command-line fuzzy finder
+- [Git](https://git-scm.com)
+- [GitHub CLI](https://cli.github.com)
+- [OpenSSH](https://www.openssh.com) client (for SSH agent forwarding to use
+  host's Git credentials)
+- [Neovim](https://neovim.io) (IDE)
+    - [Configuration](https://github.com/Vakarva/nvim)
+- [Node.js](https://nodejs.org/) managed by [nvm](https://github.com/nvm-sh/nvm)
+- [Python](https://www.python.org) managed by [uv](https://docs.astral.sh/uv/)
+- [ripgrep](https://github.com/BurntSushi/ripgrep) search tool
+- [tmux](https://github.com/tmux/tmux) with:
+    - [tpm](https://github.com/tmux-plugins/tpm) plugin manager
+    - [vim-tmux-navigator](https://github.com/christoomey/vim-tmux-navigator)
+- [Zsh](https://www.zsh.org) with:
+    - [zsh-autosuggestions](https://github.com/zsh-users/zsh-autosuggestions),
+    - [zsh-syntax-highlighting](https://github.com/zsh-users/zsh-syntax-highlighting)
+    - [fzf-tab](https://github.com/Aloxaf/fzf-tab) completion selection with fzf
+    - [Powerlevel10k](https://github.com/romkatv/powerlevel10k) theme
 
 ## 2. Prerequisites
 
--   [Podman](https://podman.io) / [Docker](https://www.docker.com)
+- [Podman](https://podman.io) or [Docker](https://www.docker.com)
 
 ## 3. Setup
 
@@ -55,20 +77,33 @@ cd dev-builder
 
 ### 3.2. Configure `compose.yml`
 
-Make sure to configure your timezone (`TZ`), the terminal you're using (`TERM`), and any specific versions you want of Node.js and Python (latest are installed by default).
+Make sure to configure your timezone (`TZ`), the terminal you're using (`TERM`),
+and any specific versions you want of Node.js and Python (latest are installed
+by default).
 
-A persistent `workspace` volume is created/used. Change this according to your needs. This volume is managed by the container runtime (Podman/Docker) and maps to storage on the host system, ensuring data persists independently of container lifecycle. The volume contents remain available even when containers are stopped, removed, or recreated.
+A persistent `workspace` volume is created/used. Change this according to your
+needs. This volume is managed by the container runtime (Podman/Docker) and maps
+to storage on the host system, ensuring data persists independently of container
+lifecycle. The volume contents remain available even when containers are
+stopped, removed, or recreated.
 
-Your local `~/.gitconfig` file and `~/.ssh` directory are mounted as read-only into the container so that you can use Git and SSH as you've configured on your local machine. Additionally, your Neovim configuration (`~/.config/nvim`) is mounted with read-write access to both preserve your editor settings and allow you to modify them from within the container. Change the source paths of these mounts to match your local machine's file system structure.
+Your local `~/.gitconfig` file and `~/.ssh` directory are mounted as read-only
+into the container so that you can use Git and SSH as you've configured on your
+local machine. Additionally, your Neovim configuration (`~/.config/nvim`) is
+mounted with read-write access to both preserve your editor settings and allow
+you to modify them from within the container. Change the source paths of these
+mounts to match your local machine's file system structure.
 
 ### 3.3. (Optional) Font Installation
 
-1. Install a nerd font. The ghostty config uses JetBrains Mono by default. [Get JetBrains Mono](https://www.jetbrains.com/lp/mono/) or, alternatively, [get MesloLGS NF](https://github.com/romkatv/powerlevel10k?tab=readme-ov-file#fonts).
-
+1. Install a nerd font. The ghostty config uses JetBrains Mono by default.
+   [Get JetBrains Mono](https://www.jetbrains.com/lp/mono/) or, alternatively,
+   [get MesloLGS NF](https://github.com/romkatv/powerlevel10k?tab=readme-ov-file#fonts).
 
 ### 3.4. Running the Container
 
-There are many ways to do this. We'll list two. First, `cd` into your `dev-builder/` directory.
+There are many ways to do this. We'll list two. First, `cd` into your
+`dev-builder/` directory.
 
 #### Option 1: Temporary Container (Auto-removes on Exit): <!-- omit in toc -->
 
@@ -77,7 +112,7 @@ There are many ways to do this. We'll list two. First, `cd` into your `dev-build
 podman build -t dev-env -f Containerfile .
 
 # Start the container (will automatically be removed when you exit)
-podman compose run --name dev-container --rm dev zsh
+podman compose run --name dev-container --rm dev zsh -l
 ```
 
 #### Option 2: Persistent Container: <!-- omit in toc -->
@@ -99,27 +134,46 @@ podman compose exec dev zsh -l
 podman compose down
 ```
 
-_Note: Containerization platforms cache build images to save on build time. So if your Containerfile has not changed, your container will reuse the cached image. For this reason, if you have not modified your Containerfile (in particular, any instructions prior to any installations in the `Containerfile`): at some point in the future you will notice that your container is running older versions of packages (which were current when the image was first built). If you'd like to use the newest ones, rebuild your image._
+_Note: Containerization platforms cache build images to save on build time. So
+if your Containerfile has not changed, your container will reuse the cached
+image. For this reason, if you have not modified your Containerfile (in
+particular, any instructions prior to any installations in the `Containerfile`):
+at some point in the future you will notice that your container is running older
+versions of packages (which were current when the image was first built). If
+you'd like to use the newest ones, rebuild your image._
 
 ### 3.5. Exiting the Development Container
 
 To exit, you can run `exit` or press `Ctrl+D` in your container's zsh instance.
 
-Remember, your container's fate is decided by your startup method. Did you use `compose up`? Then it will persist until you explicitly `compose down`. Did you set the `--rm` remove flag via `run`? Then your container will be stopped and removed. You can check active containers via `podman ps` or `docker ps`. Use the `-a` flag to view _all_ containers, both active and inactive.
+Remember, your container's fate is decided by your startup method. Did you use
+`compose up`? Then it will persist until you explicitly `compose down`. Did you
+set the `--rm` remove flag via `run`? Then your container will be stopped and
+removed. You can check active containers via `podman ps` or `docker ps`. Use the
+`-a` flag to view _all_ containers, both active and inactive.
 
 ## 4. You're In! Now What?
 
 ### 4.1. Node.js
 
-By default, the latest LTS version of Node.js is installed by nvm. You can choose a specific version by passing a `NODE_VERSION` argument to the container build or write one into the `compose.yml` file.
+By default, the latest LTS version of Node.js is installed by nvm. You can
+choose a specific version by passing a `NODE_VERSION` argument to the container
+build or write one into the `compose.yml` file.
 
-You can read more about using nvm in the [nvm documentation](https://github.com/nvm-sh/nvm#readme). The `node` alias is available in the terminal.
+You can read more about using nvm in the
+[nvm documentation](https://github.com/nvm-sh/nvm#readme). The `node` alias is
+available in the terminal.
 
 ### 4.2. Python
 
-By default, the latest stable version of Python is installed by uv. You can choose Python versions by passing a `PYTHON_VERSIONS` argument (in the same ways as mentioned for Node.js). Note that you can install multiple Python versions by separating each version by a space: (ex: `"PYTHON_VERSIONS": "3.9 3.10 3.13"`).
+By default, the latest stable version of Python is installed by uv. You can
+choose Python versions by passing a `PYTHON_VERSIONS` argument (in the same ways
+as mentioned for Node.js). Note that you can install multiple Python versions by
+separating each version by a space: (ex: `"PYTHON_VERSIONS": "3.9 3.10 3.13"`).
 
-While nvm adds `node` directly to your PATH, uv uses a different approach in which Python runs through the `uv` command. Read more about using uv in the [uv documentation](https://docs.astral.sh/uv/).
+While nvm adds `node` directly to your PATH, uv uses a different approach in
+which Python runs through the `uv` command. Read more about using uv in the
+[uv documentation](https://docs.astral.sh/uv/).
 
 ### 4.3. Terminal
 
@@ -129,20 +183,16 @@ Zsh loads automatically with all enhancements active.
 
 ### 5.1. Container Configuration
 
-Edit the following files to customize the development container to your specific needs:
+Edit the following files to customize the development container to your specific
+needs:
 
--   `Containerfile` - Add/remove packages or otherwise modify the image
+- `Containerfile` - Add/remove packages or otherwise modify the image
 
--   `compose.yml` - The environment the container runs in (env variables, volumes, etc.)
+- `compose.yml` - The environment the container runs in (env variables, volumes,
+  etc.)
 
 ### 5.2. Shell Configuration
 
--   `.devcontainer/shell-config/.zshrc` - Customize Zsh behavior
+- `.devcontainer/shell-config/.zshrc` - Customize Zsh behavior
 
--   `.devcontainer/shell-config/p10k.zsh` - Configure Powerlevel10k theme
-
-## 6. Troubleshooting
-
-### My Terminal looks weird <!-- omit in toc -->
-
-Powerlevel10k has been pre-configured via the `shell-config/p10k.zsh` file and it's very possible that this pre-configuration looks bad with your terminal emulator. Run the `p10k configure` command in a Zsh instance (from within your container) to set up Powerlevel10k's theme from scratch. Then rewrite `shell-config/p10k.zsh` in this repository with your new Powerlevel10k configuration (found at `/root/.p10k.zsh` in the container), so that your changes persist across container rebuilds.
+- `.devcontainer/shell-config/p10k.zsh` - Configure Powerlevel10k theme
