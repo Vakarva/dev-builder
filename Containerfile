@@ -20,6 +20,7 @@ ENV \
 
 # Load custom configuration files
 COPY ./shell-config/xterm-ghostty.terminfo /tmp/
+COPY ./bin/tmux /usr/bin/
 
 # Install essential tools
 RUN apt-get update && apt-get -y install --no-install-recommends \
@@ -30,12 +31,15 @@ RUN apt-get update && apt-get -y install --no-install-recommends \
     git \
     gpg \
     less \
+    # For compiled tmux. Remove when new version of tmux (v3.5a has pasting bug with extended keys on) is uploaded to apt.
+    libevent-core-2.1-7 \
+    libutf8proc3 \
+    # End tmux dependencies
     openssh-client \
     # Python for system installs
     python3 \
     python3-venv \
     ripgrep \
-    tmux \
     unzip \
     wget \
     zsh \
