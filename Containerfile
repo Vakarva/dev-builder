@@ -14,7 +14,9 @@ ARG \
 
 ENV \
     # Prevent interactive prompts during apt package installation
-    DEBIAN_FRONTEND="noninteractive"
+    DEBIAN_FRONTEND="noninteractive" \
+    # Set UTF-8 locale for tmux and other applications
+    LANG="C.UTF-8"
 
 # Load custom configuration files
 COPY ./shell-config/xterm-ghostty.terminfo /tmp/
